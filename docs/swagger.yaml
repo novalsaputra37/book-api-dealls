@@ -60,7 +60,7 @@ info:
   title: Beta Book API
   version: "1.0"
 paths:
-  /books:
+  /api/v1/books:
     get:
       consumes:
       - application/json
@@ -180,7 +180,7 @@ paths:
       summary: Create a new book
       tags:
       - books
-  /books/{id}:
+  /api/v1/books/{id}:
     delete:
       description: Deletes a book entity using its UUID
       parameters:
@@ -249,7 +249,7 @@ paths:
       summary: Get book by ID
       tags:
       - books
-  /books/cover/{id}:
+  /api/v1/books/cover/{id}:
     get:
       description: Retrieve a book cover entity using book UUID
       parameters:

@@ -18,7 +18,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/books": {
+        "/api/v1/books": {
             "get": {
                 "security": [
                     {
@@ -201,7 +201,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/books/cover/{id}": {
+        "/api/v1/books/cover/{id}": {
             "get": {
                 "security": [
                     {
@@ -256,7 +256,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/books/{id}": {
+        "/api/v1/books/{id}": {
             "get": {
                 "security": [
                     {

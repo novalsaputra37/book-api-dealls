@@ -12,7 +12,7 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
-        "/books": {
+        "/api/v1/books": {
             "get": {
                 "security": [
                     {
@@ -195,7 +195,7 @@
                 }
             }
         },
-        "/books/cover/{id}": {
+        "/api/v1/books/cover/{id}": {
             "get": {
                 "security": [
                     {
@@ -250,7 +250,7 @@
                 }
             }
         },
-        "/books/{id}": {
+        "/api/v1/books/{id}": {
             "get": {
                 "security": [
                     {

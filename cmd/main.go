@@ -19,6 +19,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/adf-code/beta-book-api/config"
 	_ "github.com/adf-code/beta-book-api/docs"
 	deliveryHttp "github.com/adf-code/beta-book-api/internal/delivery/http"
@@ -30,11 +36,6 @@ import (
 	"github.com/adf-code/beta-book-api/internal/usecase"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func main() {

@@ -1,13 +1,12 @@
 package mail
 
 import (
-	"errors"
 	"fmt"
+	"net/smtp"
+
 	"github.com/adf-code/beta-book-api/config"
 	"github.com/adf-code/beta-book-api/internal/entity"
 	"github.com/rs/zerolog"
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type EmailClient interface {
@@ -15,46 +14,71 @@ type EmailClient interface {
 }
 
 type SendGridClient struct {
-	apiKey      string
 	senderName  string
 	senderEmail string
+	smtpHost    string
+	smtpPort    int
 	logger      zerolog.Logger
 }
 
 func NewSendGridClient(cfg *config.AppConfig, logger zerolog.Logger) *SendGridClient {
 	return &SendGridClient{
-		apiKey:      cfg.SendGridAPIKey,
 		senderName:  "Beta Book API",
 		senderEmail: cfg.SendGridSenderEmail,
+		smtpHost:    "localhost",
+		smtpPort:    1025,
 		logger:      logger,
 	}
 }
 
+// Tetap ada, tidak diubah
 func (s *SendGridClient) InitSendGrid() *SendGridClient {
 	return s
 }
 
 func (s *SendGridClient) SendBookCreatedEmail(book entity.Book) error {
-	from := mail.NewEmail(s.senderName, s.senderEmail)
+
+	to := "arief.dfaltah@gmail.com" // bisa kamu buat dynamic
 	subject := fmt.Sprintf("New Book Created: %s", book.Title)
-	to := mail.NewEmail("Recipient", "arief.dfaltah@gmail.com") // You can make this dynamic
-	plainTextContent := fmt.Sprintf("A new book has been created:\n\nTitle: %s\nAuthor: %s\nYear: %d", book.Title, book.Author, book.Year)
-	htmlContent := fmt.Sprintf("<h1>New Book Created</h1><p><strong>Title:</strong> %s<br><strong>Author:</strong> %s<br><strong>Year:</strong> %d</p>", book.Title, book.Author, book.Year)
 
-	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-	client := sendgrid.NewSendClient(s.apiKey)
+	htmlBody := fmt.Sprintf(`
+		<h1>📚 New Book Created</h1>
+		<p>
+			<strong>Title:</strong> %s<br>
+			<strong>Author:</strong> %s<br>
+			<strong>Year:</strong> %d
+		</p>
+	`, book.Title, book.Author, book.Year)
 
-	resp, err := client.Send(message)
+	message := fmt.Sprintf(
+		"From: %s <%s>\r\n"+
+			"To: %s\r\n"+
+			"Subject: %s\r\n"+
+			"MIME-Version: 1.0\r\n"+
+			"Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"+
+			"%s",
+		s.senderName,
+		s.senderEmail,
+		to,
+		subject,
+		htmlBody,
+	)
+
+	addr := fmt.Sprintf("%s:%d", s.smtpHost, s.smtpPort)
+
+	err := smtp.SendMail(
+		addr,
+		nil, // Mailpit tidak perlu auth
+		s.senderEmail,
+		[]string{to},
+		[]byte(message),
+	)
+
 	if err != nil {
-		s.logger.Error().Err(err).Msgf("❌ Failed to send email")
+		s.logger.Error().Err(err).Msg("❌ Failed to send email via Mailpit")
 		return err
 	}
 
-	if resp.StatusCode >= 400 {
-		s.logger.Error().Err(err).Msgf("❌ Sendgrid error: %s", resp.Body)
-		return errors.New("Sendgrid response code not 2**")
-	}
-
-	s.logger.Info().Msgf("✅ Email sent with status: %d", resp.StatusCode)
+	s.logger.Info().Msg("✅ Email sent (Mailpit localhost:8025)")
 	return nil
 }

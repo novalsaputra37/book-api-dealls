@@ -1,0 +1,44 @@
+[
+  {
+    "no": 1,
+    "method": "GET",
+    "url": "/healthz",
+    "fungsi": "Mengecek status kesehatan sistem (Health Check)."
+  },
+  {
+    "no": 2,
+    "method": "GET",
+    "url": "/api/v1/books/cover/{id}",
+    "fungsi": "Mengambil file gambar cover buku berdasarkan ID buku."
+  },
+  {
+    "no": 3,
+    "method": "GET",
+    "url": "/api/v1/books/{id}",
+    "fungsi": "Mendapatkan detail informasi satu buku berdasarkan ID."
+  },
+  {
+    "no": 4,
+    "method": "GET",
+    "url": "/api/v1/books",
+    "fungsi": "Mendapatkan daftar seluruh buku yang tersimpan."
+  },
+  {
+    "no": 5,
+    "method": "POST",
+    "url": "/api/v1/books/upload-cover",
+    "fungsi": "Mengunggah file gambar cover buku."
+  },
+  {
+    "no": 6,
+    "method": "POST",
+    "url": "/api/v1/books",
+    "fungsi": "Menambahkan data buku baru ke dalam database."
+  },
+  {
+    "no": 7,
+    "method": "DELETE",
+    "url": "/api/v1/books/{id}",
+    "fungsi": "Menghapus data buku tertentu berdasarkan ID."
+  }
+]

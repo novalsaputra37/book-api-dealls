@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type AppConfig struct {
@@ -19,10 +20,13 @@ type AppConfig struct {
 	TelemetryEndpoint   string
 	SendGridAPIKey      string
 	SendGridSenderEmail string
-	MiniEndpoint        string
-	MinioAccessKey      string
-	MinioSecretKey      string
-	MinioBucketName     string
+	SMTPHost            string
+	SMTPPort            int
+
+	MiniEndpoint    string
+	MinioAccessKey  string
+	MinioSecretKey  string
+	MinioBucketName string
 }
 
 func LoadConfig() *AppConfig {
