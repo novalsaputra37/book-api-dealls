@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -51,6 +52,8 @@ func LoadConfig() *AppConfig {
 		TelemetryEndpoint:   getEnv("TELEMETRY_ENDPOINT", "not_set"),
 		SendGridAPIKey:      getEnv("SENDGRID_API_KEY", "not_set"),
 		SendGridSenderEmail: getEnv("SENDGRID_SENDER_EMAIL", "not_set"),
+		SMTPHost:            getEnv("SMTP_HOST", "localhost"),
+		SMTPPort:            getEnvInt("SMTP_PORT", 1025),
 		MiniEndpoint:        getEnv("MINIO_ENDPOINT", "not_set"),
 		MinioAccessKey:      getEnv("MINIO_ACCESS_KEY", "not_set"),
 		MinioSecretKey:      getEnv("MINIO_SECRET_KEY", "not_set"),
@@ -63,6 +66,15 @@ func LoadConfig() *AppConfig {
 func getEnv(key, defaultVal string) string {
 	if val, exists := os.LookupEnv(key); exists {
 		return val
+	}
+	return defaultVal
+}
+
+func getEnvInt(key string, defaultVal int) int {
+	if val, exists := os.LookupEnv(key); exists {
+		if intVal, err := strconv.Atoi(val); err == nil {
+			return intVal
+		}
 	}
 	return defaultVal
 }

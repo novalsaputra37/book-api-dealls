@@ -25,8 +25,8 @@ func NewSendGridClient(cfg *config.AppConfig, logger zerolog.Logger) *SendGridCl
 	return &SendGridClient{
 		senderName:  "Beta Book API",
 		senderEmail: cfg.SendGridSenderEmail,
-		smtpHost:    "localhost",
-		smtpPort:    1025,
+		smtpHost:    cfg.SMTPHost,
+		smtpPort:    cfg.SMTPPort,
 		logger:      logger,
 	}
 }
