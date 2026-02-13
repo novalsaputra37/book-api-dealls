@@ -57,7 +57,7 @@ func main() {
 	// v1 Repository (PostgreSQL)
 	bookRepo := repository.NewBookRepo(db)
 	bookCoverRepo := repository.NewBookCoverRepo(db)
-	bookUC := usecase.NewBookUseCase(bookRepo, db, logger, mail, kafkaClient)
+	bookUC := usecase.NewBookUseCase(bookRepo, db, logger, mail, kafkaClient, cfg)
 	bookCoverUC := usecase.NewBookCoverUseCase(bookCoverRepo, db, logger, objectStorage)
 
 	// v2 Repository (MongoDB)
@@ -65,7 +65,7 @@ func main() {
 	mongoDB := mongoClient.InitMongoDB()
 	bookMongoRepo := repository.NewBookMongoRepo(mongoDB)
 	bookCoverMongoRepo := repository.NewBookCoverMongoRepo(mongoDB)
-	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, logger, mail, kafkaClient)
+	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, logger, mail, kafkaClient, cfg)
 	bookCoverMongoUC := usecase.NewBookCoverMongoUseCase(bookCoverMongoRepo, logger, objectStorage)
 
 	handler := deliveryHttp.SetupHandler(bookUC, bookCoverUC, bookMongoUC, bookCoverMongoUC, logger)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/adf-code/beta-book-api/config"
 	"github.com/adf-code/beta-book-api/internal/delivery/request"
 	"github.com/adf-code/beta-book-api/internal/entity"
 	"github.com/adf-code/beta-book-api/internal/pkg/mail"
@@ -26,15 +27,17 @@ type bookUseCase struct {
 	logger      zerolog.Logger
 	emailClient mail.EmailClient
 	kafka       messages.KafkaClient
+	cfg         *config.AppConfig
 }
 
-func NewBookUseCase(bookRepo repository.BookRepository, db *sql.DB, logger zerolog.Logger, emailClient mail.EmailClient, kafka messages.KafkaClient) BookUseCase {
+func NewBookUseCase(bookRepo repository.BookRepository, db *sql.DB, logger zerolog.Logger, emailClient mail.EmailClient, kafka messages.KafkaClient, cfg *config.AppConfig) BookUseCase {
 	return &bookUseCase{
 		bookRepo:    bookRepo,
 		db:          db,
 		logger:      logger,
 		emailClient: emailClient,
 		kafka:       kafka,
+		cfg:         cfg,
 	}
 }
 
@@ -79,7 +82,7 @@ func (uc *bookUseCase) Create(ctx context.Context, book entity.Book) (*entity.Bo
 	uc.logger.Info().Str("book_id", book.ID.String()).Msg("✅ Book created and email sent successfully")
 
 	// Publish event to Kafka
-	if err := uc.kafka.Publish("book.created", book.ID.String(), book); err != nil {
+	if err := uc.kafka.Publish(uc.cfg.KafkaTopicBookCreated, book.ID.String(), book); err != nil {
 		uc.logger.Error().Err(err).Msg("⚠️ Failed to publish Kafka event (non-blocking)")
 	}
 

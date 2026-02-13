@@ -32,11 +32,12 @@ type AppConfig struct {
 	MongoURI    string
 	MongoDBName string
 
-	KafkaBrokers       string
-	KafkaClientID      string
-	KafkaAPIKey        string
-	KafkaAPISecret     string
-	KafkaSecurityProto string
+	KafkaBrokers          string
+	KafkaClientID         string
+	KafkaAPIKey           string
+	KafkaAPISecret        string
+	KafkaSecurityProto    string
+	KafkaTopicBookCreated string
 }
 
 func LoadConfig() *AppConfig {
@@ -46,31 +47,32 @@ func LoadConfig() *AppConfig {
 	}
 
 	return &AppConfig{
-		Env:                 getEnv("ENV", "development"),
-		Port:                getEnv("APP_PORT", "8080"),
-		DBHost:              getEnv("DB_HOST", "localhost"),
-		DBPort:              getEnv("DB_PORT", "5432"),
-		DBUser:              getEnv("DB_USER", "postgres"),
-		DBPassword:          getEnv("DB_PASSWORD", ""),
-		DBName:              getEnv("DB_NAME", "bookdb"),
-		DBSSLMode:           getEnv("DB_SSLMODE", "disable"),
-		TelemetryAPIKey:     getEnv("TELEMETRY_API_KEY", "not_set"),
-		TelemetryEndpoint:   getEnv("TELEMETRY_ENDPOINT", "not_set"),
-		SendGridAPIKey:      getEnv("SENDGRID_API_KEY", "not_set"),
-		SendGridSenderEmail: getEnv("SENDGRID_SENDER_EMAIL", "not_set"),
-		SMTPHost:            getEnv("SMTP_HOST", "localhost"),
-		SMTPPort:            getEnvInt("SMTP_PORT", 1025),
-		MiniEndpoint:        getEnv("MINIO_ENDPOINT", "not_set"),
-		MinioAccessKey:      getEnv("MINIO_ACCESS_KEY", "not_set"),
-		MinioSecretKey:      getEnv("MINIO_SECRET_KEY", "not_set"),
-		MinioBucketName:     getEnv("MINIO_BUCKET_NAME", "not_set"),
-		MongoURI:            getEnv("MONGO_URI", "mongodb://localhost:27017"),
-		MongoDBName:         getEnv("MONGO_DB_NAME", "beta_book_api"),
-		KafkaBrokers:        getEnv("KAFKA_BROKERS", "localhost:9092"),
-		KafkaClientID:       getEnv("KAFKA_CLIENT_ID", "beta-book-api"),
-		KafkaAPIKey:         getEnv("KAFKA_API_KEY", ""),
-		KafkaAPISecret:      getEnv("KAFKA_API_SECRET", ""),
-		KafkaSecurityProto:  getEnv("KAFKA_SECURITY_PROTOCOL", "PLAINTEXT"),
+		Env:                   getEnv("ENV", "development"),
+		Port:                  getEnv("APP_PORT", "8080"),
+		DBHost:                getEnv("DB_HOST", "localhost"),
+		DBPort:                getEnv("DB_PORT", "5432"),
+		DBUser:                getEnv("DB_USER", "postgres"),
+		DBPassword:            getEnv("DB_PASSWORD", ""),
+		DBName:                getEnv("DB_NAME", "bookdb"),
+		DBSSLMode:             getEnv("DB_SSLMODE", "disable"),
+		TelemetryAPIKey:       getEnv("TELEMETRY_API_KEY", "not_set"),
+		TelemetryEndpoint:     getEnv("TELEMETRY_ENDPOINT", "not_set"),
+		SendGridAPIKey:        getEnv("SENDGRID_API_KEY", "not_set"),
+		SendGridSenderEmail:   getEnv("SENDGRID_SENDER_EMAIL", "not_set"),
+		SMTPHost:              getEnv("SMTP_HOST", "localhost"),
+		SMTPPort:              getEnvInt("SMTP_PORT", 1025),
+		MiniEndpoint:          getEnv("MINIO_ENDPOINT", "not_set"),
+		MinioAccessKey:        getEnv("MINIO_ACCESS_KEY", "not_set"),
+		MinioSecretKey:        getEnv("MINIO_SECRET_KEY", "not_set"),
+		MinioBucketName:       getEnv("MINIO_BUCKET_NAME", "not_set"),
+		MongoURI:              getEnv("MONGO_URI", "mongodb://localhost:27017"),
+		MongoDBName:           getEnv("MONGO_DB_NAME", "beta_book_api"),
+		KafkaBrokers:          getEnv("KAFKA_BROKERS", "localhost:9092"),
+		KafkaClientID:         getEnv("KAFKA_CLIENT_ID", "beta-book-api"),
+		KafkaAPIKey:           getEnv("KAFKA_API_KEY", ""),
+		KafkaAPISecret:        getEnv("KAFKA_API_SECRET", ""),
+		KafkaSecurityProto:    getEnv("KAFKA_SECURITY_PROTOCOL", "PLAINTEXT"),
+		KafkaTopicBookCreated: getEnv("KAFKA_TOPIC_BOOK_CREATED", "topic_1"),
 	}
 }
 

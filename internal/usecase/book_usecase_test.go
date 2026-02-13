@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/adf-code/beta-book-api/config"
 	"github.com/adf-code/beta-book-api/internal/delivery/request"
 	"github.com/adf-code/beta-book-api/internal/entity"
 	mailMocks "github.com/adf-code/beta-book-api/internal/pkg/mail/mocks"
@@ -28,7 +29,7 @@ func TestGetAllBooks(t *testing.T) {
 	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka, &config.AppConfig{KafkaTopicBookCreated: "topic_1"})
 
 	expected := []entity.Book{
 		{ID: uuid.New(), Title: "Go Programming", Author: "Alice", Year: 2020},
@@ -52,7 +53,7 @@ func TestGetBookByID(t *testing.T) {
 	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka, &config.AppConfig{KafkaTopicBookCreated: "topic_1"})
 
 	id := uuid.New()
 	expectedBook := &entity.Book{ID: id, Title: "Clean Code", Author: "Robert C. Martin", Year: 2008}
@@ -91,10 +92,10 @@ func TestCreateBook(t *testing.T) {
 	// Setup repo expectations (ignore actual DB op)
 	mockRepo.On("Store", mock.Anything, mock.AnythingOfType("*sql.Tx"), &book).Return(nil)
 	mockEmail.On("SendBookCreatedEmail", book).Return(nil)
-	mockKafka.On("Publish", "book.created", mock.AnythingOfType("string"), mock.Anything).Return(nil)
+	mockKafka.On("Publish", "topic_1", mock.AnythingOfType("string"), mock.Anything).Return(nil)
 
 	// Step 3: Call usecase
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka, &config.AppConfig{KafkaTopicBookCreated: "topic_1"})
 	result, err := bookUC.Create(context.TODO(), book)
 
 	// Step 4: Assertions
@@ -116,7 +117,7 @@ func TestDeleteBook(t *testing.T) {
 	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka, &config.AppConfig{KafkaTopicBookCreated: "topic_1"})
 
 	id := uuid.New()
 	mockRepo.On("Remove", mock.Anything, id).Return(nil)
