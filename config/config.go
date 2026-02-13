@@ -31,6 +31,12 @@ type AppConfig struct {
 
 	MongoURI    string
 	MongoDBName string
+
+	KafkaBrokers       string
+	KafkaClientID      string
+	KafkaAPIKey        string
+	KafkaAPISecret     string
+	KafkaSecurityProto string
 }
 
 func LoadConfig() *AppConfig {
@@ -60,6 +66,11 @@ func LoadConfig() *AppConfig {
 		MinioBucketName:     getEnv("MINIO_BUCKET_NAME", "not_set"),
 		MongoURI:            getEnv("MONGO_URI", "mongodb://localhost:27017"),
 		MongoDBName:         getEnv("MONGO_DB_NAME", "beta_book_api"),
+		KafkaBrokers:        getEnv("KAFKA_BROKERS", "localhost:9092"),
+		KafkaClientID:       getEnv("KAFKA_CLIENT_ID", "beta-book-api"),
+		KafkaAPIKey:         getEnv("KAFKA_API_KEY", ""),
+		KafkaAPISecret:      getEnv("KAFKA_API_SECRET", ""),
+		KafkaSecurityProto:  getEnv("KAFKA_SECURITY_PROTOCOL", "PLAINTEXT"),
 	}
 }
 

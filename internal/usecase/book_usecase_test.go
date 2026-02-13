@@ -2,14 +2,16 @@ package usecase_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/adf-code/beta-book-api/internal/delivery/request"
 	"github.com/adf-code/beta-book-api/internal/entity"
 	mailMocks "github.com/adf-code/beta-book-api/internal/pkg/mail/mocks"
+	kafkaMocks "github.com/adf-code/beta-book-api/internal/pkg/messages/mocks"
 	repoMocks "github.com/adf-code/beta-book-api/internal/repository/mocks"
 	"github.com/adf-code/beta-book-api/internal/usecase"
 	"github.com/rs/zerolog"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -23,9 +25,10 @@ func TestGetAllBooks(t *testing.T) {
 
 	mockRepo := new(repoMocks.BookRepository)
 	mockEmail := new(mailMocks.SendGridClient)
+	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
 
 	expected := []entity.Book{
 		{ID: uuid.New(), Title: "Go Programming", Author: "Alice", Year: 2020},
@@ -46,9 +49,10 @@ func TestGetBookByID(t *testing.T) {
 
 	mockRepo := new(repoMocks.BookRepository)
 	mockEmail := new(mailMocks.SendGridClient)
+	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
 
 	id := uuid.New()
 	expectedBook := &entity.Book{ID: id, Title: "Clean Code", Author: "Robert C. Martin", Year: 2008}
@@ -74,6 +78,7 @@ func TestCreateBook(t *testing.T) {
 	// Step 2: Mock repository & email
 	mockRepo := new(repoMocks.BookRepository)
 	mockEmail := new(mailMocks.SendGridClient)
+	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
 	book := entity.Book{
@@ -86,9 +91,10 @@ func TestCreateBook(t *testing.T) {
 	// Setup repo expectations (ignore actual DB op)
 	mockRepo.On("Store", mock.Anything, mock.AnythingOfType("*sql.Tx"), &book).Return(nil)
 	mockEmail.On("SendBookCreatedEmail", book).Return(nil)
+	mockKafka.On("Publish", "book.created", mock.AnythingOfType("string"), mock.Anything).Return(nil)
 
 	// Step 3: Call usecase
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
 	result, err := bookUC.Create(context.TODO(), book)
 
 	// Step 4: Assertions
@@ -97,6 +103,7 @@ func TestCreateBook(t *testing.T) {
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
 	mockRepo.AssertExpectations(t)
 	mockEmail.AssertExpectations(t)
+	mockKafka.AssertExpectations(t)
 }
 
 func TestDeleteBook(t *testing.T) {
@@ -106,9 +113,10 @@ func TestDeleteBook(t *testing.T) {
 
 	mockRepo := new(repoMocks.BookRepository)
 	mockEmail := new(mailMocks.SendGridClient)
+	mockKafka := new(kafkaMocks.KafkaClient)
 	logger := zerolog.Nop()
 
-	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail)
+	bookUC := usecase.NewBookUseCase(mockRepo, db, logger, mockEmail, mockKafka)
 
 	id := uuid.New()
 	mockRepo.On("Remove", mock.Anything, id).Return(nil)

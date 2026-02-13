@@ -3,9 +3,11 @@ package usecase
 import (
 	"context"
 	"database/sql"
+
 	"github.com/adf-code/beta-book-api/internal/delivery/request"
 	"github.com/adf-code/beta-book-api/internal/entity"
 	"github.com/adf-code/beta-book-api/internal/pkg/mail"
+	"github.com/adf-code/beta-book-api/internal/pkg/messages"
 	"github.com/adf-code/beta-book-api/internal/repository"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
@@ -23,14 +25,16 @@ type bookUseCase struct {
 	db          *sql.DB
 	logger      zerolog.Logger
 	emailClient mail.EmailClient
+	kafka       messages.KafkaClient
 }
 
-func NewBookUseCase(bookRepo repository.BookRepository, db *sql.DB, logger zerolog.Logger, emailClient mail.EmailClient) BookUseCase {
+func NewBookUseCase(bookRepo repository.BookRepository, db *sql.DB, logger zerolog.Logger, emailClient mail.EmailClient, kafka messages.KafkaClient) BookUseCase {
 	return &bookUseCase{
 		bookRepo:    bookRepo,
 		db:          db,
 		logger:      logger,
 		emailClient: emailClient,
+		kafka:       kafka,
 	}
 }
 
@@ -73,6 +77,12 @@ func (uc *bookUseCase) Create(ctx context.Context, book entity.Book) (*entity.Bo
 	}
 
 	uc.logger.Info().Str("book_id", book.ID.String()).Msg("✅ Book created and email sent successfully")
+
+	// Publish event to Kafka
+	if err := uc.kafka.Publish("book.created", book.ID.String(), book); err != nil {
+		uc.logger.Error().Err(err).Msg("⚠️ Failed to publish Kafka event (non-blocking)")
+	}
+
 	return &book, nil
 }
 

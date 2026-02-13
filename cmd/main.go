@@ -31,6 +31,7 @@ import (
 	pkgDatabase "github.com/adf-code/beta-book-api/internal/pkg/database"
 	pkgLogger "github.com/adf-code/beta-book-api/internal/pkg/logger"
 	pkgEmail "github.com/adf-code/beta-book-api/internal/pkg/mail"
+	pkgMessages "github.com/adf-code/beta-book-api/internal/pkg/messages"
 	pkgOS "github.com/adf-code/beta-book-api/internal/pkg/object_storage"
 	"github.com/adf-code/beta-book-api/internal/repository"
 	"github.com/adf-code/beta-book-api/internal/usecase"
@@ -51,11 +52,12 @@ func main() {
 	db := postgresClient.InitPostgresDB()
 	minioClient := pkgOS.NewMinioClient(cfg, logger)
 	objectStorage := minioClient.InitMinio()
+	kafkaClient := pkgMessages.NewConfluentClient(cfg, logger)
 
 	// v1 Repository (PostgreSQL)
 	bookRepo := repository.NewBookRepo(db)
 	bookCoverRepo := repository.NewBookCoverRepo(db)
-	bookUC := usecase.NewBookUseCase(bookRepo, db, logger, mail)
+	bookUC := usecase.NewBookUseCase(bookRepo, db, logger, mail, kafkaClient)
 	bookCoverUC := usecase.NewBookCoverUseCase(bookCoverRepo, db, logger, objectStorage)
 
 	// v2 Repository (MongoDB)
@@ -63,7 +65,7 @@ func main() {
 	mongoDB := mongoClient.InitMongoDB()
 	bookMongoRepo := repository.NewBookMongoRepo(mongoDB)
 	bookCoverMongoRepo := repository.NewBookCoverMongoRepo(mongoDB)
-	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, logger, mail)
+	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, logger, mail, kafkaClient)
 	bookCoverMongoUC := usecase.NewBookCoverMongoUseCase(bookCoverMongoRepo, logger, objectStorage)
 
 	handler := deliveryHttp.SetupHandler(bookUC, bookCoverUC, bookMongoUC, bookCoverMongoUC, logger)
@@ -104,6 +106,9 @@ func main() {
 
 	// ✅ Close MongoDB
 	pkgDatabase.CloseMongoDB(mongoDB.Client(), logger)
+
+	// ✅ Close Kafka
+	kafkaClient.Close()
 
 	logger.Info().Msgf("✅ Server shutdown completed.")
 }
