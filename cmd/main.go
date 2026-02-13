@@ -52,12 +52,21 @@ func main() {
 	minioClient := pkgOS.NewMinioClient(cfg, logger)
 	objectStorage := minioClient.InitMinio()
 
-	// Repository and HTTP handler
+	// v1 Repository (PostgreSQL)
 	bookRepo := repository.NewBookRepo(db)
 	bookCoverRepo := repository.NewBookCoverRepo(db)
 	bookUC := usecase.NewBookUseCase(bookRepo, db, logger, mail)
 	bookCoverUC := usecase.NewBookCoverUseCase(bookCoverRepo, db, logger, objectStorage)
-	handler := deliveryHttp.SetupHandler(bookUC, bookCoverUC, logger)
+
+	// v2 Repository (MongoDB)
+	mongoClient := pkgDatabase.NewMongoClient(cfg, logger)
+	mongoDB := mongoClient.InitMongoDB()
+	bookMongoRepo := repository.NewBookMongoRepo(mongoDB)
+	bookCoverMongoRepo := repository.NewBookCoverMongoRepo(mongoDB)
+	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, logger, mail)
+	bookCoverMongoUC := usecase.NewBookCoverMongoUseCase(bookCoverMongoRepo, logger, objectStorage)
+
+	handler := deliveryHttp.SetupHandler(bookUC, bookCoverUC, bookMongoUC, bookCoverMongoUC, logger)
 
 	// HTTP server config
 	server := &http.Server{
@@ -92,6 +101,9 @@ func main() {
 
 	// ✅ Close PostgreSQL DB
 	closePostgres(db, logger)
+
+	// ✅ Close MongoDB
+	pkgDatabase.CloseMongoDB(mongoDB.Client(), logger)
 
 	logger.Info().Msgf("✅ Server shutdown completed.")
 }

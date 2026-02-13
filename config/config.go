@@ -27,6 +27,9 @@ type AppConfig struct {
 	MinioAccessKey  string
 	MinioSecretKey  string
 	MinioBucketName string
+
+	MongoURI    string
+	MongoDBName string
 }
 
 func LoadConfig() *AppConfig {
@@ -52,6 +55,8 @@ func LoadConfig() *AppConfig {
 		MinioAccessKey:      getEnv("MINIO_ACCESS_KEY", "not_set"),
 		MinioSecretKey:      getEnv("MINIO_SECRET_KEY", "not_set"),
 		MinioBucketName:     getEnv("MINIO_BUCKET_NAME", "not_set"),
+		MongoURI:            getEnv("MONGO_URI", "mongodb://localhost:27017"),
+		MongoDBName:         getEnv("MONGO_DB_NAME", "beta_book_api"),
 	}
 }
 
