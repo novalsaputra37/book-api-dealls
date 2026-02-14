@@ -43,6 +43,9 @@ func SetupHandler(
 
 	// v2 routes (MongoDB)
 	r.Handle("GET", "/api/v2/books/cover/{id}", middleware.Chain(log, auth)(bookV2Handler.GetCoverByBookID))
+	r.Handle("GET", "/api/v2/books/fibonacci/status", middleware.Chain(log, auth)(bookV2Handler.GetFibonacciStatus))
+	r.Handle("GET", "/api/v2/books/fibonacci/queue", middleware.Chain(log, auth)(bookV2Handler.GetFibonacciQueue))
+	r.Handle("POST", "/api/v2/books/fibonacci/reset", middleware.Chain(log, auth)(bookV2Handler.ResetFibonacci))
 	r.Handle("GET", "/api/v2/books/{id}", middleware.Chain(log, auth)(bookV2Handler.GetByID))
 	r.Handle("GET", "/api/v2/books", middleware.Chain(log, auth)(bookV2Handler.GetAll))
 	r.Handle("POST", "/api/v2/books/upload-cover", middleware.Chain(log, auth)(bookV2Handler.UploadCover))

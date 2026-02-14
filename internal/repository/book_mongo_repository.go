@@ -111,9 +111,15 @@ func (r *bookMongoRepo) FetchByID(ctx context.Context, id uuid.UUID) (*entity.Bo
 
 func (r *bookMongoRepo) Store(ctx context.Context, book *entity.Book) error {
 	now := time.Now()
-	book.ID = uuid.New()
-	book.CreatedAt = &now
-	book.UpdatedAt = &now
+	if book.ID == uuid.Nil {
+		book.ID = uuid.New()
+	}
+	if book.CreatedAt == nil {
+		book.CreatedAt = &now
+	}
+	if book.UpdatedAt == nil {
+		book.UpdatedAt = &now
+	}
 
 	doc := bookDocument{
 		ID:        book.ID.String(),

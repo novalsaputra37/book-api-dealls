@@ -29,6 +29,7 @@ import (
 	_ "github.com/adf-code/beta-book-api/docs"
 	deliveryHttp "github.com/adf-code/beta-book-api/internal/delivery/http"
 	pkgDatabase "github.com/adf-code/beta-book-api/internal/pkg/database"
+	pkgFib "github.com/adf-code/beta-book-api/internal/pkg/fibonacci"
 	pkgLogger "github.com/adf-code/beta-book-api/internal/pkg/logger"
 	pkgEmail "github.com/adf-code/beta-book-api/internal/pkg/mail"
 	pkgMessages "github.com/adf-code/beta-book-api/internal/pkg/messages"
@@ -65,7 +66,9 @@ func main() {
 	mongoDB := mongoClient.InitMongoDB()
 	bookMongoRepo := repository.NewBookMongoRepo(mongoDB)
 	bookCoverMongoRepo := repository.NewBookCoverMongoRepo(mongoDB)
-	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, logger, mail, kafkaClient, cfg)
+	bookQueueMongoRepo := repository.NewBookQueueMongoRepo(mongoDB)
+	fibTracker := pkgFib.NewTracker()
+	bookMongoUC := usecase.NewBookMongoUseCase(bookMongoRepo, bookQueueMongoRepo, logger, kafkaClient, cfg, fibTracker)
 	bookCoverMongoUC := usecase.NewBookCoverMongoUseCase(bookCoverMongoRepo, logger, objectStorage)
 
 	handler := deliveryHttp.SetupHandler(bookUC, bookCoverUC, bookMongoUC, bookCoverMongoUC, logger)

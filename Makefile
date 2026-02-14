@@ -3,7 +3,7 @@ BUILD_DIR=bin
 CMD_ENTRY=cmd/main.go
 SWAG=swag
 
-.PHONY: all swag build run dev clean
+.PHONY: all swag build run dev clean consumer
 
 all: dev
 
@@ -53,3 +53,18 @@ docker-rebuild-run:
 clean:
 	@echo "🧹 Cleaning build directory..."
 	rm -rf $(BUILD_DIR)
+
+# Build consumer binary
+build-consumer:
+	@echo "🔨 Building consumer binary..."
+	go build -o $(BUILD_DIR)/$(APP_NAME)-consumer cmd/consumer/main.go
+
+# Run consumer
+run-consumer:
+	@echo "🚀 Running consumer..."
+	./$(BUILD_DIR)/$(APP_NAME)-consumer
+
+# Dev consumer: Build + Run
+consumer:
+	@$(MAKE) build-consumer
+	@$(MAKE) run-consumer

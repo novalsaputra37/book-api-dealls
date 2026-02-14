@@ -38,6 +38,8 @@ type AppConfig struct {
 	KafkaAPISecret        string
 	KafkaSecurityProto    string
 	KafkaTopicBookCreated string
+	KafkaTopicBookPending string
+	KafkaConsumerGroupID  string
 }
 
 func LoadConfig() *AppConfig {
@@ -73,6 +75,8 @@ func LoadConfig() *AppConfig {
 		KafkaAPISecret:        getEnv("KAFKA_API_SECRET", ""),
 		KafkaSecurityProto:    getEnv("KAFKA_SECURITY_PROTOCOL", "PLAINTEXT"),
 		KafkaTopicBookCreated: getEnv("KAFKA_TOPIC_BOOK_CREATED", "topic_1"),
+		KafkaTopicBookPending: getEnv("KAFKA_TOPIC_BOOK_PENDING", "topic_book_pending"),
+		KafkaConsumerGroupID:  getEnv("KAFKA_CONSUMER_GROUP_ID", "beta-book-consumer-group"),
 	}
 }
 
